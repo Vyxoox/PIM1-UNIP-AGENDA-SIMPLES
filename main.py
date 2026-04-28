@@ -1,10 +1,50 @@
 import calendar
+import json
 from datetime import datetime
 
 #dicionário para armazenar a agenda
 agenda = {}
 
-#função1 adicionar aula
+#função persistencia
+def salvar_agenda():
+    """
+    Salva o dicionário 'agenda' em um arquivo JSON
+    """
+
+    try:
+        #abre no modo de escrita
+        with open("agenda.json", "w", encoding="utf-8") as arquivo:
+            #converte o dicionário para JSON e salva
+            json.dump(agenda, arquivo, indent=2, ensure_ascii=False)
+        print("Agenda salva com sucesso!")
+    except Exception as e:
+        print(f"Erro ao salvar a agenda: {e}")
+
+
+#função que carrega a agenda salva
+def carregar_agenda():
+    """
+    Carrega o arquivo JSON e reconstrói o dicionário 'agenda'
+    """
+    global agenda  # Permite modificar a variável global
+
+    try:
+        # Abrir arquivo em modo "leitura" (r)
+        with open("agenda.json", "r", encoding="utf-8") as arquivo:
+            # Converter JSON para dicionário
+            agenda = json.load(arquivo)
+        print("✅ Agenda carregada com sucesso!")
+        return True
+    except FileNotFoundError:
+        # Se arquivo não existe, começa vazio
+        print("ℹ️ Nenhuma agenda anterior. Começando nova.")
+        agenda = {}
+        return False
+    except Exception as e:
+        print(f"❌ Erro ao carregar: {e}")
+        return False
+
+#função adicionar aula
 def adicionar_aula(professor, data, disciplina, conteudo, horario):
     """
     Addicionar uma aula à agenda
@@ -38,13 +78,13 @@ def adicionar_aula(professor, data, disciplina, conteudo, horario):
 
 
 
-#função2 remover aula
+#função remover aula
 def remover_aula(professor, data, indice_aula):
     """
     Remover uma aula da agenda
 
     Parâmetros:
-    professor:  nome do professor
+    professor: nome do professor
     data: data no formato DD/MM
     indice_aula: posição da aula na lista(0, 1, 2, ...)
     """
@@ -69,7 +109,7 @@ def remover_aula(professor, data, indice_aula):
     print(f"Aula removida! {aula_removida['discplina']} - {professor}")
 
 
-#função3 lista aulas por dia
+#função lista aulas por dia
 def listar_aulas_dia(data):
     """
     Lista todas as aulas de um dia específico (de todos os professores)
@@ -95,7 +135,7 @@ def listar_aulas_dia(data):
         print(f"Nenhuma aula nessa data!")
 
 
-#função4 listar aula por professor
+#função listar aula por professor
 def listar_aulas_professor(professor):
     """
     Lista todas as aulas de um professor específico
@@ -121,7 +161,7 @@ def listar_aulas_professor(professor):
             print(f"  {i + 1}. {aula['disciplina']} - {aula['conteudo']} às {aula['horario']}")
 
 
-#função5 mostrar o mês completo
+#função mostrar o mês completo
 def mostrar_mes(ano, mes):
     """
     Mostra todas as aulas do mês em formato de calendário
@@ -176,7 +216,7 @@ def mostrar_mes(ano, mes):
         print()
 
 
-#função6 editar aula já cadastrada
+#função editar aula já cadastrada
 def editar_aula(professor, data, indice_aula, campo, novo_valor):
     """
     Edita uma aula existente
@@ -219,9 +259,10 @@ def editar_aula(professor, data, indice_aula, campo, novo_valor):
 
 
 
-#função7 MENU PRINCIPAL
+#função MENU PRINCIPAL
 
 def menu():
+    carregar_agenda()
     """
     Menu principal da agenda
     """
@@ -285,9 +326,11 @@ def menu():
             novo_valor = input("Novo valor: ")
             editar_aula(professor, data, indice, campo, novo_valor)
 
+
         elif opcao == "7":
+            salvar_agenda()  # Salvar antes de sair
             print("\n👋 Até logo!")
-            break  # Sai do while
+            break
 
         else:
             print("❌ Opção inválida! Tente novamente.")
